@@ -1,5 +1,8 @@
-from django.shortcuts import render
-from django.contrib.auth import authenticate, login
+from django.shortcuts import redirect, render
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+
+from .forms import RegisterForm
 
 def index(request):
     return render(request, 'index.html', {
@@ -22,10 +25,24 @@ def login_view(request):
 
         if user:
             login(request, user)
-            print('autenticado')
+            messages.success(request, 'Bienvenido {}'.format(user.username))
+            return redirect('index')
         else:
-            print('error')
+            messages.error(request, 'Usuario o contraseña invalido')
 
     return render(request, 'users/login.html', { 
 
+    })
+
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'Sesion cerrada con exito')
+    return redirect('login')
+
+
+def register(request):
+    form = RegisterForm
+    return render(request, 'users/register.html', {
+        'form': form
     })
