@@ -4,21 +4,25 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 
 from .forms import RegisterForm
+from products.models import Product
 
 
 def index(request):
+
+    products = Product.objects.all().order_by('-id')
+
     return render(request, 'index.html', {
         'message': 'Listado de productos',
         'title': 'Productos',
-        'products': [
-            {'title': 'Playera', 'price': 5, 'stock': True},
-            {'title': 'Camisa', 'price': 7, 'stock': True},
-            {'title': 'Mochila', 'price': 20, 'stock': False},
-        ]
+        'products': products,
     })
 
 
 def login_view(request):
+
+    if request.user.is_authenticated:
+        return redirect('index')
+
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -44,6 +48,10 @@ def logout_view(request):
 
 
 def register(request):
+
+    if request.user.is_authenticated:
+        return redirect('index')
+
     form = RegisterForm(request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
